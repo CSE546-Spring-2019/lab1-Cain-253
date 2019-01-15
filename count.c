@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 /**
  * Jeremy Cain
  * Main file for lab 1
@@ -14,7 +15,7 @@
 long searchForResults(FILE *fpInputFile, char *strSearch);
 
 /**
- * Starting point for lab. In a better program, it would delegate execution to other methods.
+ * Starting point for lab.
  *
  * @param  argc: Number of command-line args.
  * @param  argv[]: Command line args as an array of strings.
@@ -33,7 +34,6 @@ int main(int argc, char *argv[])
     char *strSearch = argv[2];
     char *strOutputFilePath = argv[3];
 
-    printf("input file path: %s\n", strInputFilePath);
     FILE *fpInputFile = fopen(strInputFilePath, "rb");
     if (fpInputFile == NULL)
     {
@@ -55,12 +55,10 @@ int main(int argc, char *argv[])
     }
     fseek(fpInputFile, 0, SEEK_SET);
 
-    printf("search string: %s\n", strSearch);
     long lCount = searchForResults(fpInputFile, strSearch);
 
     fclose(fpInputFile);
 
-    printf("output file path: %s\n", strOutputFilePath);
     FILE *fpOutputFile = fopen(strOutputFilePath, "w");
     if (fpOutputFile == NULL)
     {
@@ -68,15 +66,27 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    fprintf(fpOutputFile, "Size: %ld\nMatches: %ld", lFileLength, lCount);
-    printf("Size: %ld\nMatches: %ld", lFileLength, lCount);
+    fprintf(fpOutputFile, "Size: %ld\nMatches: %ld\n", lFileLength, lCount);
+    printf("Size: %ld\nMatches: %ld\n", lFileLength, lCount);
 
-    printf("Complete.");
     return 0;
 }
 
 long searchForResults(FILE *fpFile, char *strSearch)
 {
-    //TODO: implement
-    return 525600;
+    long lCount = 0;
+    int iSize = sizeof(strSearch);
+    unsigned char buffer[iSize];
+
+    while (fread(buffer, 1, iSize, fpFile) >= iSize)
+    {
+        printf("buffer: \n%s\n", buffer);
+        if (memcmp(strSearch, buffer, iSize) == 0)
+        {
+            lCount++;
+        }
+        fseek(fpFile, ((iSize - 1) * -1), SEEK_CUR);
+    }
+
+    return lCount;
 }
